@@ -2,105 +2,121 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;  
 
-public class MainTest extends Frame implements ActionListener{   
-    JTextField text; JLabel ScreenpickLabel;
+public class MainTest extends JFrame implements ActionListener{   
+    JPanel buttonsPanel;
+    JPanel cards;
+    CardLayout cardLayout;
+    JList<String> memberList;
+    JLabel memberLabel;
+        
     
-    MainTest() {
-        JFrame f = new JFrame("TEST");
+    //MainTest is the frame object
+    MainTest() { 
+        // Create the main frame
+        setTitle("Test");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(500, 500);
+
+        // Create panel for buttons
+        buttonsPanel = new JPanel();
+        buttonsPanel.setLayout(new FlowLayout());
+        addButtons();
+
+        // Create panel for cards
+        cards = new JPanel();
+        cardLayout = new CardLayout();
+        cards.setLayout(cardLayout);
+        addPages();
+
+        // Add panels to frame
+        add(buttonsPanel, BorderLayout.NORTH);
+        add(cards, BorderLayout.CENTER);
+
+    }
+
+    //Adds the buttons along the top that exist for all cards
+    private void addButtons() {
+        JButton b1 = new JButton("Members");
+        b1.setBounds(0,0, 150,20);
+        b1.setActionCommand("member");
+        b1.addActionListener(this);
+        buttonsPanel.add(b1);
+
+        JButton b2 = new JButton("Development Plans ");
+        b2.setBounds(150,0, 150,20);
+        b2.setActionCommand("development");
+        b2.addActionListener(this);
+        buttonsPanel.add(b2);
+
+        JButton b3 = new JButton("Plats");
+        b3.setBounds(300,0, 150,20);
+        b3.setActionCommand("plat");
+        b3.addActionListener(this);
+        buttonsPanel.add(b3);
+    }
+
+    //create cards that have custom pages on each card 
+    private void addPages() {
+        JPanel page1 = new JPanel();
+        JLabel P1l = new JLabel("Member Page");  
+        page1.add(P1l);
 
         DefaultListModel<String> l1 = new DefaultListModel<>();  
         l1.addElement("smith");  
         l1.addElement("jones");  
         l1.addElement("blake");  
         l1.addElement("clark");  
-        JList<String> memberList = new JList<>(l1);  
+        memberList = new JList<>(l1);  
         memberList.setBounds(50,100, 150,100);
         memberList.setAlignmentY(BOTTOM_ALIGNMENT);
-       
+        page1.add(memberList);
+        memberLabel = new JLabel(" ");  
+        page1.add(memberLabel);
 
-        JButton b1 = new JButton("Members");
-        b1.setBounds(0,0, 150,20);
-        b1.setActionCommand("memberSwitch");
-        
-
-        JButton b2 = new JButton("Development Plans ");
-        b2.setBounds(150,0, 150,20);
-        b2.setActionCommand("development");
-        
-
-        JButton b3 = new JButton("Plats");
-        b3.setBounds(300,0, 150,20);
-        b3.setActionCommand("plat");
-         
         JButton searchButton = new JButton("search");
         searchButton.setBounds(50,250, 150,50);
-        
-        text = new JTextField();
-        text.setBounds(50,0, 150,20);
+        searchButton.addActionListener(this);
+        searchButton.setActionCommand("search");
+        page1.add(searchButton);
+        cards.add(page1, "member");
 
-        ScreenpickLabel=new JLabel();  
-        ScreenpickLabel.setBounds(100,50, 250,20);    
-        
+        JPanel page2 = new JPanel();
+        JLabel P2l = new JLabel("Development plans page");  
+        page2.add(P2l);
+        String column[]={"ID","NAME","SALARY"};
+        String data[][]={ {"101","Amit","670000"},    
+                          {"102","Jai","780000"},    
+                          {"101","Sachin","700000"}};    
+        JTable table=new JTable(data,column);
+        table.setAlignmentY(BOTTOM_ALIGNMENT);
+        page2.add(table);    
+        cards.add(page2, "development");
 
-        JLabel memberLabel=new JLabel();  
-        memberLabel.setBounds(100,200, 250,20);    
-        
+        JPanel page3 = new JPanel();
+        JLabel P3l = new JLabel("Plats page");  
+        page3.add(P3l);
+        cards.add(page3, "plat");
+    }
 
-        f.add(b1);
-        f.add(b2);
-        f.add(b3);
-        f.add(text);
-        f.add(ScreenpickLabel);
-        f.add(memberLabel);
-        f.add(memberList);
-        f.add(searchButton);
-
-        b1.addActionListener(this); 
-        b2.addActionListener(this);
-        b3.addActionListener(this);
-        searchButton.addActionListener(new ActionListener() {  
-            public void actionPerformed(ActionEvent e) {   
-               String data = "";  
+    public void actionPerformed(ActionEvent e) {  
+        String Action = e.getActionCommand();
+        if (Action.equals("search")){ //Chain elseifs for different commands 
+            String data = "";  
                if (memberList.getSelectedIndex() != -1) {                       
                   data = "Member Selected: " + memberList.getSelectedValue();   
                   memberLabel.setText(data);  
                }  
-               
-            }  
-         });   
-        f.setLayout(null);
-        f.setSize(500, 500); // Set frame size
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Set close operation
-        f.setVisible(true); // Make frame visible
-    }
-
-    public void actionPerformed(ActionEvent e) {  
-        try{  
-        String Action = e.getActionCommand();
-        switch (Action){
-
-            case "memberSwitch":
-            ScreenpickLabel.setText("The " + Action + " button was pressed");
-            break;
-
-            case "development":
-            ScreenpickLabel.setText("The " + Action + " button was pressed");
-            break;
-
-            case "plat":
-            ScreenpickLabel.setText("The " + Action + " button was pressed");
-            break;
-
-            default:
-            
+        }
+        else{
+            cardLayout.show(cards, Action);
         }
         
-        }catch(Exception ex){System.out.println(ex);}  
     } 
     
 
     public static void main(String[] args) {
-        new MainTest();
+        MainTest start = new MainTest(); //Create mainTest object that is a frame with two panels
+        start.setVisible(true);
     }
 
     
