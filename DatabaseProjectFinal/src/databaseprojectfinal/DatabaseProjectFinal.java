@@ -194,7 +194,7 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener {
             if (memberList.getSelectedIndex() != -1) {
                 data = "Member Selected: " + memberList.getSelectedValue();
                 memberLabel.setText(data);
-                mem = loadTable("SELECT * From plat");
+                //mem = loadTable("SELECT * From plat");
                 mem.revalidate();
 
             }
