@@ -29,6 +29,7 @@ public class sqlTest {
             Connection con = DriverManager.getConnection(SERVER, ID, PW);
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM nwhite16db.member");
+            System.out.println("Id  Name");
             while (rs.next()){
                 String name = rs.getString("Fname");
                 String id = rs.getString("StaffID");

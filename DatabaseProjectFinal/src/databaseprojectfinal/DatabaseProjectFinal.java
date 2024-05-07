@@ -13,7 +13,11 @@ import java.awt.*;
 import java.awt.event.*;  
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.*;
+import javax.swing.table.*;
 
 public class DatabaseProjectFinal extends JFrame implements ActionListener{   
     JPanel buttonsPanel;
@@ -97,6 +101,7 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener{
         JPanel page2 = new JPanel();
         JLabel P2l = new JLabel("Development plans page");  
         page2.add(P2l);
+
         String column[]={"ID","NAME","SALARY"};
         String data[][]={ {"101","Amit","670000"},    
                           {"102","Jai","780000"},    
@@ -110,8 +115,48 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener{
         JLabel P3l = new JLabel("Plats page");  
         page3.add(P3l);
         cards.add(page3, "plat");
+        JTable newTable = loadTable("SELECT * From plat");
     }
-
+    public JTable loadTable(String query){
+        
+        
+        try{
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        }catch (ClassNotFoundException e){
+        System.out.println(e);
+        }
+        
+        final String ID = "nwhite16";
+        final String PW = "COSC*aea5h";
+        final String SERVER = "jdbc:mysql://triton.towson.edu:3360/?serverTimezone=EST#/nwhite16db?useSSL=false";
+       
+        try {   
+            Connection con = DriverManager.getConnection(SERVER, ID, PW);
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            ResultSetMetaData meta = rs.getMetaData();
+            DefaultTableModel m = new DefaultTableModel();
+            int colcnt = rs.getMetaData().getColumnCount();
+            for (int i=1; i<=colcnt;i++){
+                m.addColumn(rs.getMetaData().getColumnName(i));
+            }
+            //String Col[] = {"ConveyenceID", "Book", "Page", "GISID", "isRevised"};       
+            while (rs.next()){
+              String[] data = new String[colcnt];
+              for( int i =1; i< colcnt; i++){
+                  data[i]=rs.getString(rs.getMetaData().getColumnName(i));
+              }
+              m.addRow(data);
+            }
+            JTable dataTable=new JTable();
+            dataTable.setModel(m);
+            return dataTable;
+            
+        }catch (SQLException e){
+            System.err.println(e);
+        }
+        return null;
+    }
     public void actionPerformed(ActionEvent e) {  
         String Action = e.getActionCommand();
         if (Action.equals("search")){ //Chain elseifs for different commands 
