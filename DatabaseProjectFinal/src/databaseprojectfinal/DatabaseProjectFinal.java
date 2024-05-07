@@ -26,6 +26,7 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener{
     JList<String> memberList;
     JLabel memberLabel;
     JTable mem;
+    DefaultTableModel model;
         
     
     //MainTest is the frame object
@@ -33,7 +34,7 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener{
         // Create the main frame
         setTitle("Test");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(500, 500);
+        setSize(600, 600);
 
         // Create panel for buttons
         buttonsPanel = new JPanel();
@@ -76,15 +77,10 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener{
     //Create cards with differnt pages [Area below buttons] 
     private void addPages() {
         JPanel page1 = new JPanel();
-        JLabel P1l = new JLabel("Member Page");  
+        JLabel P1l = new JLabel("All Team members");  
         page1.add(P1l);
 
-        DefaultListModel<String> l1 = new DefaultListModel<>();  
-        l1.addElement("smith");  
-        l1.addElement("jones");  
-        l1.addElement("blake");  
-        l1.addElement("clark");  
-        memberList = new JList<>(l1);  
+        memberList = loadList("SELECT * FROM member","FName");
         memberList.setBounds(0,100, 150,100);
         memberList.setAlignmentY(BOTTOM_ALIGNMENT);
         memberList.setAlignmentX(LEFT_ALIGNMENT);
@@ -97,35 +93,69 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener{
         searchButton.addActionListener(this);
         searchButton.setActionCommand("search");
         page1.add(searchButton);
-        mem = loadTable("SELECT * From member Where StaffID=0");
-        //JScrollPane scrollPanemem = new JScrollPane(mem);
-        //scrollPanemem.setBounds(50, 200, 500, 500);
-        page1.add(mem);
+        mem = loadTable("SELECT * From member");
+        JScrollPane scrollPanemem = new JScrollPane(mem);
+        scrollPanemem.setBounds(50, 200, 500, 500);
+        page1.add(scrollPanemem);
 
         cards.add(page1, "member");
 
         JPanel page2 = new JPanel();
         JLabel P2l = new JLabel("Development plans page");  
         page2.add(P2l);
-
-        String column[]={"ID","NAME","SALARY"};
-        String data[][]={ {"101","Amit","670000"},    
-                          {"102","Jai","780000"},    
-                          {"101","Sachin","700000"}};    
-        JTable table=new JTable(data,column);
-        table.setAlignmentY(BOTTOM_ALIGNMENT);
-        page2.add(table);    
+   
+        JTable devTable=loadTable("SELECT * FROM developmentplan");
+        devTable.setAlignmentY(BOTTOM_ALIGNMENT);
+        JScrollPane scrollPanedev = new JScrollPane(devTable);
+        scrollPanedev.setBounds(50, 200, 500, 500);
+        page2.add(scrollPanedev); 
         cards.add(page2, "development");
 
         JPanel page3 = new JPanel();
         JLabel P3l = new JLabel("Plats page");  
-        //page3.add(P3l);
+        page3.add(P3l);
         cards.add(page3, "plat");
-        JTable newTable = loadTable("SELECT * From plat");
-        JScrollPane scrollPane = new JScrollPane(newTable);
-        scrollPane.setBounds(50, 200, 500, 500);
-        page3.add(scrollPane);
+        JTable platTable = loadTable("SELECT * From plat");
+        JScrollPane scrollPaneplat = new JScrollPane(platTable);
+        scrollPaneplat.setBounds(50, 200, 500, 500);
+        page3.add(scrollPaneplat);
     }
+    
+     public JList loadList(String query, String atr){
+        
+        
+        try{
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        }catch (ClassNotFoundException e){
+        System.out.println(e);
+        }
+        
+        final String ID = "nwhite16";
+        final String PW = "COSC*aea5h";
+        final String SERVER = ("jdbc:mysql://triton.towson.edu:3360/nwhite16db?serverTimezone=EST&useSSL=false");
+       
+        try {   
+              
+        
+            Connection con = DriverManager.getConnection(SERVER, ID, PW);
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            ResultSetMetaData meta = rs.getMetaData();
+            DefaultListModel<String> l1 = new DefaultListModel<>();  
+
+            //String Col[] = {"ConveyenceID", "Book", "Page", "GISID", "isRevised"};       
+            while (rs.next()){
+            l1.addElement(rs.getString(atr));
+            }
+         memberList = new JList<>(l1);  
+         return memberList;
+            
+        }catch (SQLException e){
+            System.err.println(e);
+        }
+        return null;
+    }
+     
     public JTable loadTable(String query){
         
         
@@ -144,10 +174,10 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener{
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(query);
             ResultSetMetaData meta = rs.getMetaData();
-            DefaultTableModel m = new DefaultTableModel();
+            model = new DefaultTableModel();
             int colcnt = rs.getMetaData().getColumnCount();
             for (int i=1; i<=colcnt;i++){
-                m.addColumn(rs.getMetaData().getColumnName(i));
+                model.addColumn(rs.getMetaData().getColumnName(i));
             }
             //String Col[] = {"ConveyenceID", "Book", "Page", "GISID", "isRevised"};       
             while (rs.next()){
@@ -155,11 +185,53 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener{
               for( int i =0; i< colcnt; i++){
                   data[i]=rs.getString(rs.getMetaData().getColumnName(i+1));
               }
-              m.addRow(data);
+              model.addRow(data);
             }
             JTable dataTable=new JTable();
-            dataTable.setModel(m);
+            dataTable.setModel(model);
             return dataTable;
+            
+        }catch (SQLException e){
+            System.err.println(e);
+        }
+        return null;
+    }
+    
+    public JTable updateTable(JTable table,String query){
+        
+        
+        try{
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        }catch (ClassNotFoundException e){
+        System.out.println(e);
+        }
+        
+        final String ID = "nwhite16";
+        final String PW = "COSC*aea5h";
+        final String SERVER = ("jdbc:mysql://triton.towson.edu:3360/nwhite16db?serverTimezone=EST&useSSL=false");
+       
+        try {   
+            Connection con = DriverManager.getConnection(SERVER, ID, PW);
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            ResultSetMetaData meta = rs.getMetaData();
+            model = new DefaultTableModel();
+            int colcnt = rs.getMetaData().getColumnCount();
+            for (int i=1; i<=colcnt;i++){
+                model.addColumn(rs.getMetaData().getColumnName(i));
+            }
+            //String Col[] = {"ConveyenceID", "Book", "Page", "GISID", "isRevised"};       
+            while (rs.next()){
+              String[] data = new String[colcnt];
+              for( int i =0; i< colcnt; i++){
+                  data[i]=rs.getString(rs.getMetaData().getColumnName(i+1));
+              }
+              model.addRow(data);
+            }
+
+            table.setModel(model);
+            model.fireTableDataChanged();
+            return table;
             
         }catch (SQLException e){
             System.err.println(e);
@@ -172,9 +244,10 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener{
             String data = "";  
                if (memberList.getSelectedIndex() != -1) {                       
                   data = "Member Selected: " + memberList.getSelectedValue();   
+                  String name= memberList.getSelectedValue();
                   memberLabel.setText(data);
-                  mem = loadTable("SELECT * From plat");
-                  mem.revalidate();
+                  mem = updateTable(mem,"SELECT * From member Where Fname='"+name+"'");
+
                   
                }  
         }
