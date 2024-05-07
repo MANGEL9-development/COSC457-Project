@@ -25,6 +25,7 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener{
     CardLayout cardLayout;
     JList<String> memberList;
     JLabel memberLabel;
+    JTable mem;
         
     
     //MainTest is the frame object
@@ -47,7 +48,7 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener{
 
         // Add panels to frame
         add(buttonsPanel, BorderLayout.PAGE_START);
-        add(cards, BorderLayout.LINE_START);
+        add(cards, BorderLayout.CENTER);
 
     }
 
@@ -96,6 +97,11 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener{
         searchButton.addActionListener(this);
         searchButton.setActionCommand("search");
         page1.add(searchButton);
+        mem = loadTable("SELECT * From member Where StaffID=0");
+        //JScrollPane scrollPanemem = new JScrollPane(mem);
+        //scrollPanemem.setBounds(50, 200, 500, 500);
+        page1.add(mem);
+
         cards.add(page1, "member");
 
         JPanel page2 = new JPanel();
@@ -113,9 +119,12 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener{
 
         JPanel page3 = new JPanel();
         JLabel P3l = new JLabel("Plats page");  
-        page3.add(P3l);
+        //page3.add(P3l);
         cards.add(page3, "plat");
         JTable newTable = loadTable("SELECT * From plat");
+        JScrollPane scrollPane = new JScrollPane(newTable);
+        scrollPane.setBounds(50, 200, 500, 500);
+        page3.add(scrollPane);
     }
     public JTable loadTable(String query){
         
@@ -128,7 +137,7 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener{
         
         final String ID = "nwhite16";
         final String PW = "COSC*aea5h";
-        final String SERVER = "jdbc:mysql://triton.towson.edu:3360/?serverTimezone=EST#/nwhite16db?useSSL=false";
+        final String SERVER = ("jdbc:mysql://triton.towson.edu:3360/nwhite16db?serverTimezone=EST&useSSL=false");
        
         try {   
             Connection con = DriverManager.getConnection(SERVER, ID, PW);
@@ -143,8 +152,8 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener{
             //String Col[] = {"ConveyenceID", "Book", "Page", "GISID", "isRevised"};       
             while (rs.next()){
               String[] data = new String[colcnt];
-              for( int i =1; i< colcnt; i++){
-                  data[i]=rs.getString(rs.getMetaData().getColumnName(i));
+              for( int i =0; i< colcnt; i++){
+                  data[i]=rs.getString(rs.getMetaData().getColumnName(i+1));
               }
               m.addRow(data);
             }
@@ -163,7 +172,10 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener{
             String data = "";  
                if (memberList.getSelectedIndex() != -1) {                       
                   data = "Member Selected: " + memberList.getSelectedValue();   
-                  memberLabel.setText(data);  
+                  memberLabel.setText(data);
+                  mem = loadTable("SELECT * From plat");
+                  mem.revalidate();
+                  
                }  
         }
         else{
