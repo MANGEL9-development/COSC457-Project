@@ -18,7 +18,17 @@ public class sqlTest {
 
         SqlConnection connection = new SqlConnection();
         connection.connect();
-        //connection.getSourcesByEditor("david");
+        ResultSet rs2 = connection.getSourcesByEditor("ava");
+
+        try {
+            while (rs2.next()) {
+                String project = rs2.getString("ProjectName");
+                System.out.println(project);
+            }
+        } catch (SQLException e) {
+            System.err.println(e);
+        }
+
         ResultSet rs1 = connection.getApprovedSources();
         try {
             while (rs1.next()) {

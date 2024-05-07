@@ -53,7 +53,7 @@ public class SqlConnection {
 
     public ResultSet getRevisedPlats() {
         try {
-            rs = stmt.executeQuery("SELECT Book, Page FROM baltimorecountygis.plat WHERE isRevised = 1");
+            rs = stmt.executeQuery("SELECT ConveyanceID, Book, Page FROM baltimorecountygis.plat WHERE isRevised = 1");
             return rs;
         } catch (SQLException e) {
             System.err.print(e);
@@ -63,7 +63,7 @@ public class SqlConnection {
 
     public ResultSet getUnrevisedPlats() {
         try {
-            rs = stmt.executeQuery("SELECT Book, Page FROM baltimorecountygis.plat WHERE isRevised = 0");
+            rs = stmt.executeQuery("SELECT ConveyanceID, Book, Page FROM baltimorecountygis.plat WHERE isRevised = 0");
             return rs;
         } catch (SQLException e) {
             System.err.print(e);
