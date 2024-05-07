@@ -29,8 +29,8 @@ public class MainTest extends JFrame implements ActionListener{
         addPages();
 
         // Add panels to frame
-        add(buttonsPanel, BorderLayout.NORTH);
-        add(cards, BorderLayout.CENTER);
+        add(buttonsPanel, BorderLayout.PAGE_START);
+        add(cards, BorderLayout.LINE_START);
 
     }
 
@@ -55,7 +55,7 @@ public class MainTest extends JFrame implements ActionListener{
         buttonsPanel.add(b3);
     }
 
-    //create cards that have custom pages on each card 
+    //Create cards with differnt pages [Area below buttons] 
     private void addPages() {
         JPanel page1 = new JPanel();
         JLabel P1l = new JLabel("Member Page");  
@@ -67,8 +67,9 @@ public class MainTest extends JFrame implements ActionListener{
         l1.addElement("blake");  
         l1.addElement("clark");  
         memberList = new JList<>(l1);  
-        memberList.setBounds(50,100, 150,100);
+        memberList.setBounds(0,100, 150,100);
         memberList.setAlignmentY(BOTTOM_ALIGNMENT);
+        memberList.setAlignmentX(LEFT_ALIGNMENT);
         page1.add(memberList);
         memberLabel = new JLabel(" ");  
         page1.add(memberLabel);
