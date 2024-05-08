@@ -24,13 +24,12 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener {
     JPanel buttonsPanel;
     JPanel cards;
     CardLayout cardLayout;
-    JList<String> memberList;
-    JLabel memberLabel;
-    JTable mem;
     JPanel searchPanel;
     SqlConnection connection = new SqlConnection();
     String name;
     JTextField textField;
+    JTable searchEditorTable;
+    DefaultTableModel m;
 
     //MainTest is the frame object
     DatabaseProjectFinal() {
@@ -39,7 +38,7 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener {
         // Create the main frame
         setTitle("Test");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(500, 500);
+        setSize(700, 600);
 
         // Create panel for buttons
         buttonsPanel = new JPanel();
@@ -68,18 +67,21 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener {
     private void addSearchEditor() {
         JButton search = new JButton("Search Editor's Sources");
         search.setBounds(0, 150, 250, 20);
-        search.setActionCommand("searcheditor");
+        search.setActionCommand("searchEditor");
         search.addActionListener(this);
 
         textField = new JTextField(20);
-        textField.addActionListener(this);
+        //textField.addActionListener(this);
+        
 
         searchPanel.add(search);
         searchPanel.add(textField);
 
         JPanel page6 = new JPanel();
-        cards.add(page6, "searcheditor");
-        JTable searchEditorTable = loadTable(connection.getSourcesByEditor(name));
+        cards.add(page6, "searchEditor");
+        FlowLayout flowLayout = new FlowLayout(FlowLayout.CENTER, 0, 10);
+        page6.setLayout(flowLayout);
+        searchEditorTable = loadTable(connection.getSourcesByEditor(name));
         JScrollPane searchEditorPane = new JScrollPane(searchEditorTable);
         searchEditorPane.setBounds(50, 200, 500, 500);
         page6.add(searchEditorPane);
@@ -123,46 +125,96 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener {
     private void addPages() {
         JPanel page1 = new JPanel();
         cards.add(page1, "editor");
+        FlowLayout flowLayout = new FlowLayout(FlowLayout.CENTER, 0, 10);
+        page1.setLayout(flowLayout);
         JTable editorTable = loadTable(connection.getEditors());
         JScrollPane editorScrollPane = new JScrollPane(editorTable);
-        editorScrollPane.setBounds(50, 200, 500, 500);
+        editorScrollPane.setBounds(50, 200, 500, 400);
         page1.add(editorScrollPane);
 
         JPanel page2 = new JPanel();
         cards.add(page2, "revised");
+        page2.setLayout(flowLayout);
         JTable revisedTable = loadTable(connection.getRevisedPlats());
         JScrollPane revisedScrollPane = new JScrollPane(revisedTable);
-        revisedScrollPane.setBounds(50, 200, 500, 500);
+        revisedScrollPane.setBounds(50, 200, 500, 400);
         page2.add(revisedScrollPane);
 
         JPanel page3 = new JPanel();
         cards.add(page3, "unrevised");
+        page3.setLayout(flowLayout);
         JTable newTable = loadTable(connection.getUnrevisedPlats());
         JScrollPane scrollPane = new JScrollPane(newTable);
-        scrollPane.setBounds(50, 200, 500, 500);
+        scrollPane.setBounds(50, 200, 500, 400);
         page3.add(scrollPane);
 
         JPanel page4 = new JPanel();
         cards.add(page4, "approved");
+        page4.setLayout(flowLayout);
         JTable approvedTable = loadTable(connection.getApprovedSources());
         JScrollPane approvedScrollPane = new JScrollPane(approvedTable);
-        approvedScrollPane.setBounds(50, 200, 500, 500);
+        approvedScrollPane.setBounds(50, 200, 500, 400);
         page4.add(approvedScrollPane);
+        
+        
 
         JPanel page5 = new JPanel();
         cards.add(page5, "unapproved");
+        
+        JButton addNewSource = new JButton("Add New Source");
+        FlowLayout flowLayout5 = new FlowLayout(FlowLayout.CENTER, 100, 10); 
+        page5.setLayout(flowLayout5);
         JTable unapprovedTable = loadTable(connection.getUnapprovedSources());
         JScrollPane unapprovedPane = new JScrollPane(unapprovedTable);
-        unapprovedPane.setBounds(50, 200, 500, 500);
         page5.add(unapprovedPane);
-
+        addNewSource();
+        addNewSource.setActionCommand("newSource");
+        addNewSource.addActionListener(this);
+        page5.add(addNewSource);
+        
+        
     }
+    private void addNewSource(){
+        JPanel page7 = new JPanel();
+        JTextField newSourceTF = new JTextField("Enter data for new source to be approved");
+        newSourceTF.setBounds(50,150, 100,30); 
+        Font newFont=new Font(newSourceTF.getFont().getName(),newSourceTF.getFont().getStyle(),16);
+        newSourceTF.setFont(newFont); 
+        newSourceTF.setEditable(false);
+        newSourceTF.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+        page7.add(newSourceTF);
+        JButton addsorce = new JButton("ADD");
+        addsorce.setBounds(0, 0, 150, 20);
+        addsorce.setActionCommand("unapproved");
+        addsorce.addActionListener(this);
+        page7.add(addsorce);
 
+        GridLayout grid = new GridLayout(4, 2,50,50);
+        page7.setLayout(grid);
+
+       
+        JLabel conIDL = new JLabel("ConveyanceID:");
+        JLabel  reciveL= new JLabel("Date Recieved:");
+        JLabel pNameL = new JLabel("Project Name:");
+        
+        JTextField conIN = new JTextField("");
+        JTextField reciveIN = new JTextField("");
+        JTextField pNameIN = new JTextField("");
+
+        page7.add(conIDL);
+        page7.add(conIN);
+        page7.add(reciveL);
+        page7.add(reciveIN);
+        page7.add(pNameL);
+        page7.add(pNameIN);
+
+        cards.add(page7, "newSource");
+    }
     public JTable loadTable(ResultSet rs) {
 
         try {
-            ResultSetMetaData meta = rs.getMetaData();
-            DefaultTableModel m = new DefaultTableModel();
+
+            m = new DefaultTableModel();
             int colcnt = rs.getMetaData().getColumnCount();
             for (int i = 1; i <= colcnt; i++) {
                 m.addColumn(rs.getMetaData().getColumnName(i));
@@ -184,21 +236,47 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener {
         }
         return null;
     }
+    public JTable updateTable(JTable table,ResultSet rs){
+        
+        try {   
+
+            m = new DefaultTableModel();
+            int colcnt = rs.getMetaData().getColumnCount();
+            for (int i = 1; i <= colcnt; i++) {
+                m.addColumn(rs.getMetaData().getColumnName(i));
+            }
+
+            while (rs.next()) {
+                String[] data = new String[colcnt];
+                for (int i = 0; i < colcnt; i++) {
+                    data[i] = rs.getString(rs.getMetaData().getColumnName(i + 1));
+                }
+                m.addRow(data);
+            }
+
+            table.setModel(m);
+            m.fireTableDataChanged();
+            return table;
+            
+        }catch (SQLException e){
+            System.err.println(e);
+        }
+        return null;
+    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        name = textField.getText();
+        
         String Action = e.getActionCommand();
         if (Action.equals("search")) { //Chain elseifs for different commands 
-            String data = "";
-            if (memberList.getSelectedIndex() != -1) {
-                data = "Member Selected: " + memberList.getSelectedValue();
-                memberLabel.setText(data);
-                //mem = loadTable("SELECT * From plat");
-                mem.revalidate();
-
-            }
-        } else {
+            String data="";
+        }
+        else if (Action.equals("searchEditor")) { //Chain elseifs for different commands 
+            name = textField.getText();
+            searchEditorTable = updateTable(searchEditorTable,connection.getSourcesByEditor(name));
+            cardLayout.show(cards, Action);
+        }    
+        else {
             cardLayout.show(cards, Action);
         }
 
