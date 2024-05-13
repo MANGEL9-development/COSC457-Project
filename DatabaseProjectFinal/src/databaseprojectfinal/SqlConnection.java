@@ -90,7 +90,39 @@ public class SqlConnection {
         }
         return rs;
     }
+    
+    public int addSource(int CID,String Date, String approve, String ProjectName){
+      try{
+        String sql=("INSERT INTO baltimorecountygis.sources (ConveyanceID, DateRecieved, ProjectStatus, ProjectName)" +
+                                    "VALUES (?,?,?,?)");
+        
+        PreparedStatement preparedStmt = conn.prepareStatement(sql);
+        preparedStmt.setInt (1, CID);
+        preparedStmt.setString (2, Date);
+        preparedStmt.setString (3, approve);
+        preparedStmt.setString(4, ProjectName);
+        preparedStmt.executeUpdate();
+        }catch (SQLException e) {
+            System.out.print("Error in Insert, make sure CID is a unique value");
+            return 1;
+        }
+        return 0;
+    }
+    
+    public int deleateSource(int CID){
+      try{
+        String sql=("DELETE FROM baltimorecountygis.sources WHERE nwhite16db.sources.ConveyanceID = '"+CID+"'");
+        
+        PreparedStatement preparedStmt = conn.prepareStatement(sql);
+        preparedStmt.executeUpdate();
+        }catch (SQLException e) {
+            System.out.print("Error in Deleate, make sure CID exists");
+            return 1;
+        }
+        return 0;
+    }
 
+    
     public ResultSet getSourcesByEditor(String editor) {
         try {
             rs = stmt.executeQuery("SELECT ProjectName "
