@@ -196,20 +196,34 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener {
         }); 
    }
     
-    public void addEditorToSource(){
+      public void addEditorToSource(){
         JTextField editorIN = new JTextField("");
-        JTextField reciveIN = new JTextField("");
+        JTextField conIN = new JTextField("");
 
+        JLabel exp = new JLabel("Enter editor's name and name of the approved source they worked on");
         
         JPanel inputList = new JPanel(new GridLayout(0, 1));
+        inputList.add(exp);
         inputList.add(new JLabel("Editor Name:"));
         inputList.add(editorIN);
         inputList.add(new JLabel("Source Name:"));
-        inputList.add(reciveIN);
+        inputList.add(conIN);
         
         int input = JOptionPane.showConfirmDialog(null, inputList,
-                "Enter Editor and source they worked on", JOptionPane.OK_CANCEL_OPTION);
-        
+                "Add editor to source", JOptionPane.OK_CANCEL_OPTION);
+        if (input == JOptionPane.OK_OPTION) {
+            String memName = conIN.getText();
+            String CID = conIN.getText();
+    
+            int result = connection.addEditorToSource(memName,CID);
+            if(result==1)
+                JOptionPane.showMessageDialog(null,"Error in Insert, make sure The names are correct and the source is approved",
+                "Warning", JOptionPane.ERROR_MESSAGE);
+            else{
+            //searchEditorTable = updateTable(searchEditorTable,connection.getUnapprovedSources());
+               System.out.print("Susses");
+            }
+        }
     }
     
     public void deleateSource() {
