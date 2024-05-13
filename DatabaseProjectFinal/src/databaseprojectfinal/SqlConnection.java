@@ -121,7 +121,56 @@ public class SqlConnection {
         }
         return 0;
     }
+ public int addEditorToSource(String memberName, String pName){
+      try{
+        String sql=("INSERT INTO nwhite16db.works_on (StaffID,ConveyanceID)" +
+                                    "VALUES (?,?)");
+        String MemID = "";
+        String CID = "";
+        
+        try{
+        rs = stmt.executeQuery("SELECT StaffID FROM nwhite16db.member WHERE Fname = '"+memberName+"'");
+        while (rs.next()) {
+            MemID = rs.getString("StaffID");
+            System.out.println("MemID: " + MemID);
+        }
+        } catch (SQLException e) {
+            System.err.print(e);
+        }
+        
+        try{
+        rs = stmt.executeQuery("SELECT ConveyanceID FROM nwhite16db.sources WHERE ProjectStatus = 'Complete' AND ProjectName = '"+pName+"'");
+        while (rs.next()) {
+            CID = rs.getString("ConveyanceID");
+            System.out.print(CID);
 
+        }
+        } catch (SQLException e) {
+            System.err.print(e);
+        }
+        
+        int memIDint=0;
+        int CIDint = 0;
+        if (!MemID.isEmpty() && !CID.isEmpty()) {
+        memIDint = Integer.parseInt(MemID);
+        CIDint = Integer.parseInt(CID);
+
+        } else {
+        System.out.println("MemID or CID is empty.");
+        }
+
+        
+        PreparedStatement preparedStmt = conn.prepareStatement(sql);
+        preparedStmt.setInt(1, memIDint);
+        preparedStmt.setInt (2, CIDint);
+        preparedStmt.executeUpdate();
+        
+        }catch (SQLException e) {
+            System.out.print("Error in Insert, make sure The names are correct and the source is approved");
+            return 1;
+        }
+        return 0;
+    }
     
     public ResultSet getSourcesByEditor(String editor) {
         try {
