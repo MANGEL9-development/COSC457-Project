@@ -29,6 +29,8 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener {
     String name;
     JTextField textField;
     JTable searchEditorTable;
+    JTable unapprovedTable;
+    JTable approvedTable;
     DefaultTableModel m;
 
     //MainTest is the frame object
@@ -125,12 +127,21 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener {
     private void addPages() {
         JPanel page1 = new JPanel();
         cards.add(page1, "editor");
-        FlowLayout flowLayout = new FlowLayout(FlowLayout.CENTER, 0, 10);
+        FlowLayout flowLayout = new FlowLayout(FlowLayout.CENTER, 100, 10);
         page1.setLayout(flowLayout);
         JTable editorTable = loadTable(connection.getEditors());
         JScrollPane editorScrollPane = new JScrollPane(editorTable);
         editorScrollPane.setBounds(50, 200, 500, 400);
         page1.add(editorScrollPane);
+        
+        JButton addEditorToSource = new JButton("Add Editor to Source");
+        page1.add(addEditorToSource);
+        addEditorToSource.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            addEditorToSource();
+        }
+        }); 
 
         JPanel page2 = new JPanel();
         cards.add(page2, "revised");
@@ -151,37 +162,135 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener {
         JPanel page4 = new JPanel();
         cards.add(page4, "approved");
         page4.setLayout(flowLayout);
-        JTable approvedTable = loadTable(connection.getApprovedSources());
+        approvedTable = loadTable(connection.getApprovedSources());
         JScrollPane approvedScrollPane = new JScrollPane(approvedTable);
         approvedScrollPane.setBounds(50, 200, 500, 400);
         page4.add(approvedScrollPane);
         
-        
+
 
         JPanel page5 = new JPanel();
         cards.add(page5, "unapproved");
-        
-        JButton addNewSource = new JButton("Add New Source");
         FlowLayout flowLayout5 = new FlowLayout(FlowLayout.CENTER, 100, 10); 
         page5.setLayout(flowLayout5);
-        JTable unapprovedTable = loadTable(connection.getUnapprovedSources());
+        unapprovedTable = loadTable(connection.getUnapprovedSources());
         JScrollPane unapprovedPane = new JScrollPane(unapprovedTable);
         page5.add(unapprovedPane);
-        addNewSource();
-        addNewSource.setActionCommand("newSource");
-        addNewSource.addActionListener(this);
+
+        JButton addNewSource = new JButton("Add New Source");
         page5.add(addNewSource);
+        addNewSource.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            addNewSource();
+        }
+        }); 
         
+        JButton deleateSource = new JButton("Deleate Source");
+        page5.add(deleateSource);
+        deleateSource.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            deleateSource();
+        }
+        }); 
+   }
+    
+    public void addEditorToSource(){
+        JTextField editorIN = new JTextField("");
+        JTextField reciveIN = new JTextField("");
+
+        
+        JPanel inputList = new JPanel(new GridLayout(0, 1));
+        inputList.add(new JLabel("Editor Name:"));
+        inputList.add(editorIN);
+        inputList.add(new JLabel("Source Name:"));
+        inputList.add(reciveIN);
+        
+        int input = JOptionPane.showConfirmDialog(null, inputList,
+                "Enter Editor and source they worked on", JOptionPane.OK_CANCEL_OPTION);
         
     }
-    private void addNewSource(){
+    
+    public void deleateSource() {
+
+        JTextField conIN = new JTextField("");
+        
+        JPanel inputList = new JPanel(new GridLayout(0, 1));
+        inputList.add(new JLabel("ConveyanceID:"));
+        inputList.add(conIN);
+
+        
+        
+        int input = JOptionPane.showConfirmDialog(null, inputList,
+                "Enter Source CID to deleate", JOptionPane.OK_CANCEL_OPTION);
+        if (input == JOptionPane.OK_OPTION) {
+            // Retrieve the values entered by the user
+            String CID = conIN.getText();
+            int intCID = Integer.parseInt(CID);
+    
+            int result = connection.deleateSource(intCID);
+            if(result==1)
+                JOptionPane.showMessageDialog(null,"Error in input, make sure CID exists",
+                "Warning", JOptionPane.ERROR_MESSAGE);
+            else{
+            unapprovedTable = updateTable(unapprovedTable,connection.getUnapprovedSources());
+            approvedTable = updateTable(approvedTable,connection.getApprovedSources());   
+            }
+                
+        }
+    }
+    public void addNewSource() {
+
+        JTextField conIN = new JTextField("");
+        JTextField reciveIN = new JTextField("");
+        JTextField pNameIN = new JTextField("");
+        JCheckBox approveBox = new JCheckBox("");  
+        
+        JPanel inputList = new JPanel(new GridLayout(0, 1));
+        inputList.add(new JLabel("ConveyanceID:"));
+        inputList.add(conIN);
+        inputList.add(new JLabel("Date Recieved:"));
+        inputList.add(reciveIN);
+        inputList.add(new JLabel("Approved?:"));
+        inputList.add(approveBox);
+        inputList.add(new JLabel("Project Name:"));
+        inputList.add(pNameIN);
+        
+        
+        int input = JOptionPane.showConfirmDialog(null, inputList,
+                "Enter data for new source to be approved", JOptionPane.OK_CANCEL_OPTION);
+        if (input == JOptionPane.OK_OPTION) {
+            // Retrieve the values entered by the user
+            String CID = conIN.getText();
+            int intCID = Integer.parseInt(CID);
+            String date = reciveIN.getText();
+            String approve = "Incomplete";
+            if(approveBox.isSelected()){
+                approve = "Complete";
+            }
+            String pname = pNameIN.getText();
+            int result = connection.addSource(intCID, date, approve, pname);
+            if(result==1)
+                JOptionPane.showMessageDialog(null,"Error in input, make sure CID is unique and that all values are filled",
+                "Warning", JOptionPane.ERROR_MESSAGE);
+            else{
+             unapprovedTable = updateTable(unapprovedTable,connection.getUnapprovedSources());
+            approvedTable = updateTable(approvedTable,connection.getApprovedSources());   
+            }
+                
+        }
+    }
+
+    
+   /* private void addNewSource(){
         JPanel page7 = new JPanel();
         JTextField newSourceTF = new JTextField("Enter data for new source to be approved");
         newSourceTF.setBounds(50,150, 100,30); 
         Font newFont=new Font(newSourceTF.getFont().getName(),newSourceTF.getFont().getStyle(),16);
         newSourceTF.setFont(newFont); 
         newSourceTF.setEditable(false);
-        newSourceTF.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+    
         page7.add(newSourceTF);
         JButton addsorce = new JButton("ADD");
         addsorce.setBounds(0, 0, 150, 20);
@@ -189,7 +298,8 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener {
         addsorce.addActionListener(this);
         page7.add(addsorce);
 
-        GridLayout grid = new GridLayout(4, 2,50,50);
+  
+        GridLayout grid = new GridLayout(0,1);
         page7.setLayout(grid);
 
        
@@ -209,7 +319,8 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener {
         page7.add(pNameIN);
 
         cards.add(page7, "newSource");
-    }
+    }*/
+    
     public JTable loadTable(ResultSet rs) {
 
         try {
@@ -236,6 +347,7 @@ public class DatabaseProjectFinal extends JFrame implements ActionListener {
         }
         return null;
     }
+    
     public JTable updateTable(JTable table,ResultSet rs){
         
         try {   
